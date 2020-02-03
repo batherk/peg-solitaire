@@ -3,9 +3,10 @@ import matplotlib.pyplot as plt
 
 class Node:
 
-    def __init__(self, value=False):
+    def __init__(self, value=0):
         self.value = value
         self.neighbours = {}
+
 
     def add_neighbor(self,position,node):
         if position[0]==0 and position[1]==0:
@@ -48,8 +49,14 @@ class HexGrid:
         self.graph = nx.Graph()
         self.size = 0
 
-    def get_node(self,position):
-        return self.nodes[position]
+    def get_node(self,pos):
+        return self.nodes[pos]
+
+    def fill_node(self, pos):
+        self.nodes[pos].value = 1
+
+    def clear_node(self, pos):
+        self.nodes[pos].value = 0
 
     def get_position(self, node):
         return self.positions[node]
@@ -69,9 +76,13 @@ class HexGrid:
     def get_legal_positions(self):
         return list(self.nodes.keys())
 
-    def fill_all_nodes(self,value):
+    def fill_all_nodes(self):
         for node in self.get_all_nodes():
-            node.value = value
+            node.value = 1
+
+    def clear_all_nodes(self):
+        for node in self.get_all_nodes():
+            node.value = 0
 
     def add_node(self,position):
         new_node = Node()
@@ -110,16 +121,16 @@ class HexGrid:
         return self.get_positions(self.get_node(node_pos).get_filled_neighbors())
 
     def get_state(self):
-        state = {}
+        state = ""
         for pos in self.nodes:
-            state[pos] = self.nodes[pos].value
+            state += str(self.nodes[pos].value)
         return state
 
     def set_state(self, state):
-        for pos in state:
-            self.nodes[pos].value = state[pos]
-
-
+        index = 0
+        for pos in self.nodes:
+            self.nodes[pos].value = int(state[index])
+            index += 1
 
 class Diamond(HexGrid):
     

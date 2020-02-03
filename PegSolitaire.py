@@ -1,6 +1,7 @@
 from HexGrid import *
+from random import randint
 
-class Game:
+class PegSolitaire:
 
     def __init__(self,board_type, board_size, empty_nodes_pos=[]):
 
@@ -15,15 +16,21 @@ class Game:
         self.board_type = board_type
         self.board_size = board_size
 
-        self.board.fill_all_nodes(True)
-        for node_pos in empty_nodes_pos:
-            self.board.get_node(node_pos).value = False
+        self.board.fill_all_nodes()
+
+        if len(empty_nodes_pos) == 0:
+            nodes_pos = self.board.get_filled_nodes_positions()
+            empty_node_pos = nodes_pos[randint(0,len(nodes_pos)-1)]
+            self.board.clear_node(empty_node_pos)
+        else: 
+            for node_pos in empty_nodes_pos:
+                self.board.clear_node(node_pos)
 
     def print_board_terminal(self):
         for row in range(self.board_size):
             row_string = ""
             for col in range(self.board_size):
-                row_string += str(self.board.nodes[(row,col)]).ljust(10) if (row,col) in self.board.nodes.keys() else "".ljust(10)
+                row_string += str(self.board.nodes[(row,col)]).ljust(5) if (row,col) in self.board.nodes.keys() else "".ljust(5)
             print(row_string)
     
     def show_board(self, debug=False):
@@ -47,7 +54,10 @@ class Game:
 
     def perform_action(self, action):
         for pos in action:
-            self.board.get_node(pos).value = not self.board.get_node(pos).value
+            if self.board.get_node(pos).value:
+                self.board.get_node(pos).value = 0
+            else:
+                self.board.get_node(pos).value = 1
 
     def is_win(self):
         return len(self.board.get_filled_nodes_positions())==1
@@ -64,10 +74,14 @@ class Game:
     def set_state(self, state):
         self.board.set_state(state)
 
-
-game = Game("Diamond",6,[(1,1)])
-init_state = game.get_state()
-actions = game.get_possible_actions()
-
-
+    def get_reward(self):
+        if self.is_win():
+            return 100
+        elif self.is_lose():
+            return -1
+        else: 
+            return 0
+        
+    def get_end_result(self):
+        return len(self.board.get_filled_nodes_positions())
 
