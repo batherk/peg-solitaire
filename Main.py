@@ -18,7 +18,7 @@ empty_nodes_pos = []
 times_with_learning = 3000
 times_after_learning_testing = 1000
 times_after_learning_with_show_every_move = 0
-times_after_learning_with_show_last_move = 50
+times_after_learning_with_show_last_move = 0
 
 # Statistics settings
 show_statistics = True
@@ -98,11 +98,11 @@ def print_expected_reward_for_states(critic):
     for state in critic.expected:
         print(f'State: {state} Expected future reward: {critic.expected[state]}')
 
-def progress_bar(current_step, total_steps, print_interval=20):
+def progress_bar(current_step, total_steps, print_interval=20,update_all_steps=True):
     if print_interval > total_steps:
         print_interval = total_steps
     hashtags = current_step*print_interval//total_steps
-    if current_step%(total_steps//print_interval) == 0:
+    if update_all_steps or current_step%(total_steps//print_interval) == 0:
         print(f"\rStatus: [{'#'*(hashtags)}{'.'*(print_interval-hashtags)}] {current_step}/{total_steps}", end="", flush=True)
     if current_step==total_steps:
         print(f"\rStatus: Done" + 60*" ")
