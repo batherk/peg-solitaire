@@ -33,8 +33,8 @@ class PegSolitaire:
                 row_string += str(self.board.nodes[(row,col)]).ljust(5) if (row,col) in self.board.nodes.keys() else "".ljust(5)
             print(row_string)
     
-    def show_board(self, debug=False):
-        self.board.show_graph(debug=debug)
+    def show_board(self, debug=False, pause=1):
+        self.board.show_graph(debug=debug, pause=pause)
     
     def get_third_node_pos(self,node_1_pos,node_2_pos):
         if not self.board.is_neighbors(node_1_pos, node_2_pos):

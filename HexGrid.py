@@ -95,7 +95,7 @@ class HexGrid:
         self.nodes[pos1].add_neighbor(relative_pos,self.nodes[pos2])
         self.graph.add_edge(pos1,pos2)
 
-    def show_graph(self, positions=None, debug=False):
+    def show_graph(self, positions=None, debug=False, pause=1):
         if not positions:
             positions = {}
             labels = {}
@@ -112,7 +112,9 @@ class HexGrid:
         if debug:
             nx.draw_networkx_labels(self.graph, label_positions,labels=labels)
         plt.axis('off')
-        plt.show()
+        plt.draw()
+        plt.pause(pause)
+        plt.clf()
 
     def is_neighbors(self, node1_pos, node2_pos):
         return self.get_node(node1_pos).is_neighbor_to(self.get_node(node2_pos))
@@ -148,7 +150,7 @@ class Diamond(HexGrid):
                 if neighbor_pos in self.nodes:
                     self.add_edge(pos,neighbor_pos)
 
-    def show_graph(self, debug=False):
+    def show_graph(self, debug=False, pause=1):
         if debug:
             super(Diamond, self).show_graph(debug=True)
         else: 
@@ -157,7 +159,7 @@ class Diamond(HexGrid):
                 x = pos[1]-pos[0]
                 y = 2*self.size - pos[0] - pos[1]
                 positions[pos]=(x,y)
-            super(Diamond, self).show_graph(positions=positions)   
+            super(Diamond, self).show_graph(positions=positions, pause=pause)   
 
 class Triangle(HexGrid):
     
@@ -175,11 +177,11 @@ class Triangle(HexGrid):
                 if neighbor_pos in self.nodes:
                     self.add_edge(pos,neighbor_pos)
 
-    def show_graph(self, debug=False):
+    def show_graph(self, debug=False, pause=1):
             if debug:
                 super(Triangle, self).show_graph(debug=True)
             else: 
                 positions = {}
                 for pos in self.get_legal_positions():
                     positions[pos]=(2*pos[1]-pos[0],self.size - pos[0])
-                super(Triangle, self).show_graph(positions)
+                super(Triangle, self).show_graph(positions, pause=pause)
