@@ -39,7 +39,6 @@ def run_one_game(game,actor,critic,evolve=True,show_board_every_action=False, sh
     init_state = game.get_state()
     state_sequence = [init_state]
     state_action_sequence = []
-    critic.add_init_state_to_tables(init_state,game.get_possible_actions())
 
     while not game.is_done():
         if show_board_every_action:
