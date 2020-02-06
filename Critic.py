@@ -20,7 +20,7 @@ class TableCritic(Critic):
             self.expected[new_state] = 0
         return reward + self.gamma*self.expected[new_state] - self.expected[old_state]
 
-    def update_tables(self, delta, sequence):
+    def update(self, delta, sequence):
         self.trace[sequence[-1]] = 1
         for state in sequence:
             self.expected[state] += self.alpha * delta * self.trace[state]

@@ -31,7 +31,7 @@ class Actor:
         else: 
             return self.get_max_action(state)
 
-    def update_tables(self, delta, sequence):
+    def update(self, delta, sequence):
         self.trace[sequence[-1]] = 1
         for state,action in sequence:
             self.policy[state][action] += self.alpha * delta * self.trace[(state,action)]

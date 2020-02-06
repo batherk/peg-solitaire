@@ -57,8 +57,8 @@ def run_one_game(game,actor,critic,evolve=True,show_board_every_action=False, sh
         if evolve:
             delta = critic.calculate_td_error(old_state, new_state, reward)
         
-            critic.update_tables(delta, state_sequence)
-            actor.update_tables(delta, state_action_sequence)
+            critic.update(delta, state_sequence)
+            actor.update(delta, state_action_sequence)
     if show_board_in_end:
         game.show_board(debug=debug, pause=show_delay)     
 
