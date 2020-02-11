@@ -123,10 +123,7 @@ class HexGrid:
         return self.get_positions(self.get_node(node_pos).get_filled_neighbors())
 
     def get_state(self):
-        state = ""
-        for pos in self.nodes:
-            state += str(self.nodes[pos].value)
-        return state
+        return tuple([self.nodes[pos].value for pos in self.nodes])
 
     def set_state(self, state):
         index = 0

@@ -1,17 +1,23 @@
 from PegSolitaire import PegSolitaire
 from Actor import Actor
 from Critic import *
+from Main import *
 import matplotlib.pyplot as plt
 
-lam = 1
-alpha = 0.1
-gamma = 0.9
-epsilon = 0.2
+def print_expected_reward_for_win_states(critic):
+    for state in critic.expected:
+        if state.count('1') == 1:
+            print(f'State: {state} Expected future reward: {critic.expected[state]}')
+
+def print_expected_reward_for_states(critic):
+    for state in critic.expected:
+        print(f'State: {state} Expected future reward: {critic.expected[state]}')
 
 
-actor = Actor(lam,alpha,gamma,epsilon)
-critic = TableCritic(lam,alpha,gamma)
+c = create_critic(lam,alpha,gamma,False,15,[3])
 
-game = PegSolitaire("Triangle",3)
-game.show_board()
-print(game.get_possible_actions())
+tensor = torch.randn(15)
+
+print(tensor)
+
+print(c.net(tensor))

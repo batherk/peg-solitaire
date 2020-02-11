@@ -23,7 +23,7 @@ times_after_learning_with_show_last_move = 0
 # Statistics settings
 show_statistics = True
 points_amount = 100
-average_amount = (times_with_learning + times_after_learning_testing)//points_amount
+average_amount = (times_with_learning + times_after_learning_testing + times_after_learning_with_show_every_move + times_after_learning_with_show_last_move)//points_amount
 
 # Plot settings
 delay = 0.2
@@ -31,8 +31,9 @@ delay = 0.2
 # Debug settings
 debug = False
 
-a = Actor(lam,alpha,gamma,epsilon)
-c = TableCritic(lam,alpha,gamma)
+# Critic settings
+USE_TABLE = True
+HIDDEN_LAYERS = [3]
 
 def run_one_game(game,actor,critic,evolve=True,show_board_every_action=False, show_board_in_end=False, debug=False, show_delay=1):
 
@@ -56,7 +57,7 @@ def run_one_game(game,actor,critic,evolve=True,show_board_every_action=False, sh
         if evolve:
             delta = critic.calculate_td_error(old_state, new_state, reward)
         
-            critic.update(delta, state_sequence)
+            critic.update(state_sequence)
             actor.update(delta, state_action_sequence)
     if show_board_in_end:
         game.show_board(debug=debug, pause=show_delay)     
@@ -88,15 +89,6 @@ def print_averages(results, average_amount):
     plt.plot(xs,ys)
     plt.show()
 
-def print_expected_reward_for_win_states(critic):
-    for state in critic.expected:
-        if state.count('1') == 1:
-            print(f'State: {state} Expected future reward: {critic.expected[state]}')
-
-def print_expected_reward_for_states(critic):
-    for state in critic.expected:
-        print(f'State: {state} Expected future reward: {critic.expected[state]}')
-
 def progress_bar(current_step, total_steps, print_interval=20,update_all_steps=True):
     if print_interval > total_steps:
         print_interval = total_steps
@@ -106,26 +98,48 @@ def progress_bar(current_step, total_steps, print_interval=20,update_all_steps=T
     if current_step==total_steps:
         print(f"\rStatus: Done" + 60*" ")
 
+def state_size(board_type, board_size):
+    if board_type == 'Diamond':
+        return board_size**2
+    elif board_type == 'Triangle':
+        num = board_size
+        while board_size > 0:
+            board_size -= 1
+            num += board_size
+        return num
 
+def create_critic(lam,alpha,gamma,table,state_size=None,hidden_layers=None):
+    if table:
+        return TableCritic(lam,alpha,gamma)
+    else: 
+        layers = [state_size] + hidden_layers + [1]
+        return ANNCritic(lam,alpha,gamma,layers)
 
-print('Training')
-results = run_ai(board_type,board_size,times_with_learning,a,c,empty_nodes_pos)
-a.epsilon = 0
+if __name__ == '__main__':
 
-if times_after_learning_testing:
-    print('\nTesting policy with greedy behaviour')
-    results += run_ai(board_type,board_size,times_after_learning_testing,a,c,empty_nodes_pos,False,False,False)
+    state_size = state_size(board_type, board_size)
 
-if times_after_learning_with_show_last_move:
-    print('\nTesting policy and showing only last move')
-    results += run_ai(board_type,board_size,times_after_learning_with_show_last_move,a,c,empty_nodes_pos,False,False,True,debug,delay)
+    a = Actor(lam,alpha,gamma,epsilon)
+    c = create_critic(lam,alpha,gamma,USE_TABLE,state_size,HIDDEN_LAYERS)
 
-if times_after_learning_with_show_every_move:
-    print('\nTesting policy and showing every move')
-    results += run_ai(board_type,board_size,times_after_learning_with_show_every_move,a,c,empty_nodes_pos,False,True,True,debug,delay)
+    print('Training')
+    results = run_ai(board_type,board_size,times_with_learning,a,c,empty_nodes_pos)
+    a.epsilon = 0
 
-if show_statistics:
-    print('\nShowing statistics')
-    print_averages(results,average_amount)
+    if times_after_learning_testing:
+        print('\nTesting policy with greedy behaviour')
+        results += run_ai(board_type,board_size,times_after_learning_testing,a,c,empty_nodes_pos,False,False,False)
+
+    if times_after_learning_with_show_last_move:
+        print('\nTesting policy and showing only last move')
+        results += run_ai(board_type,board_size,times_after_learning_with_show_last_move,a,c,empty_nodes_pos,False,False,True,debug,delay)
+
+    if times_after_learning_with_show_every_move:
+        print('\nTesting policy and showing every move')
+        results += run_ai(board_type,board_size,times_after_learning_with_show_every_move,a,c,empty_nodes_pos,False,True,True,debug,delay)
+
+    if show_statistics:
+        print('\nShowing statistics')
+        print_averages(results,average_amount)
 
 
