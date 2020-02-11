@@ -33,7 +33,7 @@ debug = False
 
 # Critic settings
 USE_TABLE = True
-HIDDEN_LAYERS = [3]
+HIDDEN_LAYERS = [10,5]
 
 def run_one_game(game,actor,critic,evolve=True,show_board_every_action=False, show_board_in_end=False, debug=False, show_delay=1):
 

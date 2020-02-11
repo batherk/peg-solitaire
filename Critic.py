@@ -32,9 +32,6 @@ class TableCritic(Critic):
             self.expected[state] += self.alpha * self.delta * self.trace[state]
             self.trace[state] *= self.gamma * self.lam
 
-
-
-
 class ANNCritic(Critic):
     """ Evaluates the states.  Maps state to value of expected future reward using an artificial neural network """
 
@@ -48,15 +45,16 @@ class ANNCritic(Critic):
         output = self.net(self.state_tensor_convert(old_state))
         target = self.net(self.state_tensor_convert(new_state)) + reward
         self.loss = self.net.loss(output,target)
-        return self.loss.data
+        return self.loss.item()
 
     def update(self, sequence):
         if len(sequence)==2:
             self.trace[sequence[0]] = self.gamma * self.lam
         self.trace[sequence[-1]] = 1
-        for state in sequence:
-            self.net.update_weights(self.loss, self.alpha, self.trace[state])
-            self.trace[state] *= self.gamma * self.lam
+        for i,state in enumerate(sequence):
+            if i < len(sequence)-1:
+                self.net.update_weights(self.loss, self.alpha, self.trace[state],True)
+                self.trace[state] *= self.gamma * self.lam
 
     def state_tensor_convert(self,state):
         return torch.Tensor(state)

@@ -20,11 +20,11 @@ class NeuralNet(torch.nn.Module):
     def loss(self, output, target):
         return self.criterion(output, target)
 
-    def update_weights(self, loss, alpha, eligibility_trace=1):
+    def update_weights(self, loss, learning_rate, eligibility_trace=1,retain_graph=False):
         self.zero_grad()
-        loss.backward()
+        loss.backward(retain_graph=retain_graph)
         for f in self.parameters():
-            f.data.sub_(f.grad.data * alpha * eligibility_trace)
+            f.data.sub_(f.grad.data * learning_rate * eligibility_trace)
 
 
     def get_weights(self,layer):
