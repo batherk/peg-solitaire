@@ -1,4 +1,3 @@
-#from tensorflow import keras
 
 class Critic:
     """ Evaluates the states.  Maps state to value of expected future reward """
@@ -36,9 +35,7 @@ class TableCritic(Critic):
 class ANNCritic(Critic):
     """ Evaluates the states.  Maps state to value of expected future reward using an artificial neural network """
 
-    def __init__(self, lam, alpha, gamma):
+    def __init__(self, lam, alpha, gamma, layers):
         super(TableCritic, self).__init__(lam,alpha, gamma)
-        #self.model = keras.Sequential([
-        #    keras.layers.Dense(10, activation="relu")
-        #])
+        
 
