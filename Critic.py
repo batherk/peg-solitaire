@@ -26,9 +26,9 @@ class TableCritic(Critic):
 
     def update(self, sequence):
         if len(sequence)==2:
-            self.trace[sequence[0]] = self.gamma * self.lam
-        self.trace[sequence[-1]] = 1
-        for state in sequence:
+            self.trace[sequence[0][0]] = self.gamma * self.lam
+        self.trace[sequence[-1][0]] = 1
+        for state,reward in sequence:
             self.expected[state] += self.alpha * self.delta * self.trace[state]
             self.trace[state] *= self.gamma * self.lam
 
@@ -43,18 +43,21 @@ class ANNCritic(Critic):
 
     def calculate_td_error(self, old_state, new_state, reward):
         output = self.net(self.state_tensor_convert(old_state))
-        target = self.net(self.state_tensor_convert(new_state)) + reward
+        target = self.gamma * self.net(self.state_tensor_convert(new_state)) + reward
         self.loss = self.net.loss(output,target)
-        return self.loss.item()
+        #print(f'Output: {output}, Target:{target}, Diff: {abs(output-target)}, Loss:{self.loss}' )
+        return float(target-output)
 
     def update(self, sequence):
-        if len(sequence)==2:
-            self.trace[sequence[0]] = self.gamma * self.lam
-        self.trace[sequence[-1]] = 1
-        for i,state in enumerate(sequence):
-            if i < len(sequence)-1:
-                self.net.update_weights(self.loss, self.alpha, self.trace[state],True)
-                self.trace[state] *= self.gamma * self.lam
+        #if len(sequence)==2:
+        #    self.trace[sequence[0][0]] = self.gamma * self.lam
+        #self.trace[sequence[-1][0]] = 1
+        self.net.update_weights(self.loss, self.alpha)
+        #for i,(state,reward) in enumerate(sequence):
+        #    if i < len(sequence)-1:
+        #        self.calculate_td_error(state,sequence[i+1][0],reward)
+        #        self.net.update_weights(self.loss, self.alpha, self.trace[state])
+        #        self.trace[state] *= self.gamma * self.lam
 
     def state_tensor_convert(self,state):
         return torch.Tensor(state)

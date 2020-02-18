@@ -3,20 +3,31 @@ from Actor import Actor
 from Critic import *
 import matplotlib.pyplot as plt
 
+# Scenarios: 
+# 0 - Custom settings
+# 1 - Triangle, 5, Table, (0,0) is empty, 500 epochs.
+# 2 - Diamond, 4, Table, (1,2) is empty, 1000 epochs. 
+# 3 - Triangle, 5, Neural Net, (0,0) is empty, 500 epochs. 
+# 4 - Diamond, 4, Neural Net, (1,2) is empty, 1000 epochs. 
+
+SCENARIO = 2
+
 # Parameter settings
 lam = 0.5
-alpha = 0.001
 gamma = 0.9
 epsilon = 0.15
+
+alpha_critic = 0.001
+alpha_actor = 0.001
 
 # Game settings
 board_type = "Triangle"
 board_size = 5
-empty_nodes_pos = []
+empty_nodes_pos = [(0,0)]
 
 # Epoch settings
-times_with_learning = 3000
-times_after_learning_testing = 1000
+times_with_learning = 1500
+times_after_learning_testing = 500
 times_after_learning_with_show_every_move = 0
 times_after_learning_with_show_last_move = 0
 
@@ -32,13 +43,13 @@ delay = 0.2
 debug = False
 
 # Critic settings
-USE_TABLE = True
-HIDDEN_LAYERS = [10,5]
+USE_TABLE = False
+HIDDEN_LAYERS = [10,10,10]
 
 def run_one_game(game,actor,critic,evolve=True,show_board_every_action=False, show_board_in_end=False, debug=False, show_delay=1):
 
     init_state = game.get_state()
-    state_sequence = [init_state]
+    state_reward_sequence = [(init_state,0)]
     state_action_sequence = []
 
     while not game.is_done():
@@ -51,14 +62,16 @@ def run_one_game(game,actor,critic,evolve=True,show_board_every_action=False, sh
         state_action_sequence.append((old_state,action))
 
         new_state = game.get_state()
-        state_sequence.append(new_state)
         reward = game.get_reward()
+        state_reward_sequence.append((new_state,reward))
+        
 
         if evolve:
             delta = critic.calculate_td_error(old_state, new_state, reward)
         
-            critic.update(state_sequence)
+            critic.update(state_reward_sequence)
             actor.update(delta, state_action_sequence)
+
     if show_board_in_end:
         game.show_board(debug=debug, pause=show_delay)     
 
@@ -115,12 +128,47 @@ def create_critic(lam,alpha,gamma,table,state_size=None,hidden_layers=None):
         layers = [state_size] + hidden_layers + [1]
         return ANNCritic(lam,alpha,gamma,layers)
 
+if SCENARIO == 1:
+    USE_TABLE = True
+    board_type = "Triangle"
+    board_size = 5
+    times_with_learning = 500
+    alpha_critic = 0.001
+    alpha_actor = 0.001
+    empty_nodes_pos = [(0,0)]
+elif SCENARIO == 2:
+    USE_TABLE = True
+    board_type = "Diamond"
+    board_size = 4
+    times_with_learning = 1000
+    alpha_critic = 0.001
+    alpha_actor = 0.001
+    empty_nodes_pos = [(1,2)]
+elif SCENARIO == 3:
+    USE_TABLE = False
+    board_type = "Triangle"
+    board_size = 5
+    times_with_learning = 500
+    alpha_critic = 0.0001
+    alpha_actor = 0.001
+    empty_nodes_pos = [(0,0)]
+elif SCENARIO == 4:
+    USE_TABLE = False
+    board_type = "Diamond"
+    board_size = 4
+    times_with_learning = 1000
+    alpha_critic = 0.0001
+    alpha_actor = 0.001
+    empty_nodes_pos = [(1,2)]
+
+
+
 if __name__ == '__main__':
 
     state_size = state_size(board_type, board_size)
 
-    a = Actor(lam,alpha,gamma,epsilon)
-    c = create_critic(lam,alpha,gamma,USE_TABLE,state_size,HIDDEN_LAYERS)
+    a = Actor(lam,alpha_actor,gamma,epsilon)
+    c = create_critic(lam,alpha_critic,gamma,USE_TABLE,state_size,HIDDEN_LAYERS)
 
     print('Training')
     results = run_ai(board_type,board_size,times_with_learning,a,c,empty_nodes_pos)
