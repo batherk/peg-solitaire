@@ -25,7 +25,3 @@ class NeuralNet(torch.nn.Module):
         loss.backward(retain_graph=retain_graph)
         for f in self.parameters():
             f.data.sub_(f.grad.data * learning_rate * eligibility_trace)
-
-
-    def get_weights(self,layer):
-        return self.layers[layer].weight

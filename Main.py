@@ -4,15 +4,15 @@ from Critic import *
 import matplotlib.pyplot as plt
 
 
-# Scenarios: 
-SCENARIO = 4
+# Scenario: 
+SCENARIO = 1
 
 SCENARIO_DESCRIPTIONS = {}
 SCENARIO_DESCRIPTIONS[0] = "Custom settings"
-SCENARIO_DESCRIPTIONS[1] = "Triangle, 5, Table, (0,0) is empty, 500 epochs, learning rates are set."
-SCENARIO_DESCRIPTIONS[2] = "Diamond, 4, Table, (1,2) is empty, 1000 epochs, learning rates are set." 
-SCENARIO_DESCRIPTIONS[3] = "Triangle, 5, Neural Net, (0,0) is empty, 500 epochs, learning rates are set."
-SCENARIO_DESCRIPTIONS[4] = "Diamond, 4, Neural Net, (1,2) is empty, 1000 epochs, learning rates are set."
+SCENARIO_DESCRIPTIONS[1] = "Triangle, 5, Table, (0,0) is empty, 500 epochs, alpha_actor: 0.001, alpha_critic: 0.001."
+SCENARIO_DESCRIPTIONS[2] = "Diamond, 4, Table, (1,2) is empty, 1000 epochs, alpha_actor: 0.001, alpha_critic: 0.001." 
+SCENARIO_DESCRIPTIONS[3] = "Triangle, 5, Neural Net, (0,0) is empty, 500 epochs, alpha_actor: 0.001, alpha_critic: 0.0001."
+SCENARIO_DESCRIPTIONS[4] = "Diamond, 4, Neural Net, (1,2) is empty, 1000 epochs, alpha_actor: 0.001, alpha_critic: 0.0001."
 
 # Parameter settings
 lam = 0.5
@@ -25,12 +25,14 @@ alpha_actor = 0.001
 # Game settings
 board_type = "Triangle"
 board_size = 5
-empty_nodes_pos = [(0,0)] # If this is empty, the game initializes with a random peg every time
+empty_nodes_pos = [] # If this is empty, the game initializes with a random peg every time
 
 # Epoch settings
 times_with_learning = 1500
+
+# Checking policy
 times_after_learning_testing = 500
-times_after_learning_with_show_every_move = 0
+times_after_learning_with_show_every_move = 1
 times_after_learning_with_show_last_move = 0
 
 # Statistics settings
@@ -39,15 +41,18 @@ points_amount = 100
 average_amount = (times_with_learning + times_after_learning_testing + times_after_learning_with_show_every_move + times_after_learning_with_show_last_move)//points_amount
 
 # Plot settings
-delay = 0.2
+delay = 1
 
 # Debug settings
 debug = False
 
 # Critic settings
 USE_TABLE = False
-HIDDEN_LAYERS = [10,10,10] #This works: HIDDEN_LAYERS = [10,10,10]
 
+# Neural net critic
+UPDATE_WHOLE_SEQUENCE = True # If true the net is updated by every state in the sequence, based on eligibility traces. Only one time per state per episode. 
+LAYERS = [15,10,10,10,1]  # This works: LAYERS = [X,10,10,10,X], ADAPT_END_LAYERS = True
+ADAPT_END_LAYERS = True # If true the first layer of nodes gets the dimension of the state size of the game and last layer gets one node, else custom
 
 
 # Setting constants for the different scenarios
@@ -80,7 +85,7 @@ elif SCENARIO == 4:
     board_type = "Diamond"
     board_size = 4
     times_with_learning = 1000
-    alpha_critic = 0.0001
+    alpha_critic = 0.00005
     alpha_actor = 0.001
     empty_nodes_pos = [(1,2)]
 
@@ -155,6 +160,8 @@ def print_averages(results, average_amount):
             ys.append(temp_amount/temp_times)
             temp_amount = 0
             temp_times = 0
+    plt.xlabel("Epochs")
+    plt.ylabel("Average remaining pegs")
     plt.plot(xs,ys)
     plt.show()
 
@@ -180,13 +187,15 @@ def state_size(board_type, board_size):
             num += board_size
         return num
 
-def create_critic(lam,alpha,gamma,table,state_size=None,hidden_layers=None):
+def create_critic(lam,alpha,gamma,table,state_size=None,layers=None, adapt_end_layers=True, update_whole_sequence=False):
     """ Creates a critic based on the arguments given """
     if table:
         return TableCritic(lam,alpha,gamma)
     else: 
-        layers = [state_size] + hidden_layers + [1]
-        return ANNCritic(lam,alpha,gamma,layers)
+        if ADAPT_END_LAYERS:
+            adapted_layers = [state_size] + LAYERS[1:-1] + [1]
+            return ANNCritic(lam,alpha,gamma,adapted_layers,update_whole_sequence)
+        return ANNCritic(lam,alpha,gamma,LAYERS,update_whole_sequence)
 
 
 if __name__ == '__main__':
@@ -194,10 +203,12 @@ if __name__ == '__main__':
     state_size = state_size(board_type, board_size)
 
     a = Actor(lam,alpha_actor,gamma,epsilon)
-    c = create_critic(lam,alpha_critic,gamma,USE_TABLE,state_size,HIDDEN_LAYERS)
+    c = create_critic(lam,alpha_critic,gamma,USE_TABLE,state_size,LAYERS, ADAPT_END_LAYERS, UPDATE_WHOLE_SEQUENCE)
 
     if SCENARIO in SCENARIO_DESCRIPTIONS:
         print(f'\nScenario: {SCENARIO}\nDescription: {SCENARIO_DESCRIPTIONS[SCENARIO]}\n')
+    else: 
+        print(f'\nUndefined scenario\n\nRunning scenario: {0}\nDescription: {SCENARIO_DESCRIPTIONS[0]}\n')
 
     print('Training')
     results = run_ai(board_type,board_size,times_with_learning,a,c,empty_nodes_pos)
@@ -218,5 +229,4 @@ if __name__ == '__main__':
     if show_statistics:
         print('\nShowing statistics')
         print_averages(results,average_amount)
-
 

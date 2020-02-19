@@ -40,11 +40,12 @@ class TableCritic(Critic):
 class ANNCritic(Critic):
     """ Evaluates the states.  Maps state to value of expected future reward using an artificial neural network """
 
-    def __init__(self, lam, alpha, gamma, layers):
+    def __init__(self, lam, alpha, gamma, layers, update_whole_sequence=False):
         super(ANNCritic, self).__init__(lam,alpha, gamma)
         self.net = NeuralNet(layers)
         self.trace = {}
         self.loss = None
+        self.update_whole_sequence = update_whole_sequence
 
     def calculate_td_error(self, old_state, new_state, reward):
         """ Calculates the TD-error and stores the loss for later use. """
@@ -55,17 +56,19 @@ class ANNCritic(Critic):
         return float(target-output)
 
     def update(self, sequence):
-        """ Updates the neural net with the latest loss. """
-
-        #if len(sequence)==2:
-        #    self.trace[sequence[0][0]] = self.gamma * self.lam
-        #self.trace[sequence[-1][0]] = 1
-        self.net.update_weights(self.loss, self.alpha)
-        #for i,(state,reward) in enumerate(sequence):
-        #    if i < len(sequence)-1:
-        #        self.calculate_td_error(state,sequence[i+1][0],reward)
-        #        self.net.update_weights(self.loss, self.alpha, self.trace[state])
-        #        self.trace[state] *= self.gamma * self.lam
+        """ Updates the neural network"""
+        if self.update_whole_sequence:
+            if len(sequence)==2:
+                self.trace[sequence[0][0]] = self.gamma * self.lam
+            self.trace[sequence[-1][0]] = 1
+            for i,(state,reward) in enumerate(sequence):
+                if i <= len(sequence)-2:
+                    self.calculate_td_error(state,sequence[i+1][0],reward)
+                    self.net.update_weights(self.loss, self.alpha, self.trace[state])
+                    self.trace[state] *= self.gamma * self.lam
+        else: 
+            self.net.update_weights(self.loss, self.alpha)
+        
 
     def state_tensor_convert(self,state):
         """
