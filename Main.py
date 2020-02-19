@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 
 # Scenario: 
-SCENARIO = 2
+SCENARIO = 0
 
 SCENARIO_DESCRIPTIONS = {}
 SCENARIO_DESCRIPTIONS[0] = "Custom settings"
@@ -28,26 +28,29 @@ board_size = 5
 empty_nodes_pos = [] # If this is empty, the game initializes with a random peg every time
 
 # Epoch settings
-times_with_learning = 1500
+times_with_learning = 3000
 
 # Checking policy
 times_after_learning_testing = 500
 times_after_learning_with_show_every_move = 1
-times_after_learning_with_show_last_move = 0
+times_after_learning_with_show_last_move = 50
 
 # Statistics settings
 show_statistics = True
+show_pegs_remaining = True
+show_wins = False
 points_amount = 100
 average_amount = (times_with_learning + times_after_learning_testing + times_after_learning_with_show_every_move + times_after_learning_with_show_last_move)//points_amount
 
 # Plot settings
-delay = 0.2
+delay_last_action = 0.1
+delay_every_action = 0.5
 
 # Debug settings
 debug = False
 
 # Critic settings
-USE_TABLE = False
+USE_TABLE = True
 
 # Neural net critic
 UPDATE_WHOLE_SEQUENCE = True # If true the net is updated by every state in the sequence, based on eligibility traces. Only one time per state per episode. 
@@ -146,7 +149,7 @@ def run_ai(board_type, board_size, times, actor, critic, empty_nodes_pos=[],evol
         results.append(game.get_end_result())
     return results
 
-def print_averages(results, average_amount):
+def print_averages(results, average_amount, show_remaining_pegs=True, show_wins=True):
     """
     Uses pyplot to show the results. 
     results: List of remaining pegs for each game
@@ -154,22 +157,50 @@ def print_averages(results, average_amount):
     """
 
     plt.close()
-    xs = []
-    ys = []
 
-    temp_amount = 0
+    fig, ax1 = plt.subplots()
+
+    xs = []
+    remaining_pegs = []
+    wins = []
+    
+    temp_wins = 0
+    temp_remaining_pegs = 0
     temp_times = 0
+
     for i in range(len(results)):
-        temp_amount += results[i]
+        temp_remaining_pegs += results[i]
         temp_times += 1
+
+        if results[i] == 1:
+            temp_wins += 1
+
         if i % average_amount == 0:
             xs.append(i)
-            ys.append(temp_amount/temp_times)
-            temp_amount = 0
+            remaining_pegs.append(temp_remaining_pegs/temp_times)
+            wins.append(temp_wins)
+
+            temp_remaining_pegs = 0
             temp_times = 0
-    plt.xlabel("Epochs")
-    plt.ylabel("Average remaining pegs")
-    plt.plot(xs,ys)
+            temp_wins = 0
+
+    
+    color = 'tab:blue'
+    if show_remaining_pegs: 
+        ax1.plot(xs, remaining_pegs, color=color)
+        ax1.set_ylabel('Average remaining pegs', color=color)
+        ax1.tick_params(axis='y', labelcolor=color)
+    
+    ax2 = ax1.twinx()
+
+    color = 'tab:green'
+    if show_wins: 
+        ax2.plot(xs, wins, color=color)
+        ax2.set_ylabel(f'Amount of wins per {average_amount} games', color=color)
+        ax2.tick_params(axis='y', labelcolor=color)
+
+    ax1.set_xlabel('Epochs')
+    fig.tight_layout()
     plt.show()
 
 def progress_bar(current_step, total_steps, print_interval=20,update_all_steps=True):
@@ -227,13 +258,13 @@ if __name__ == '__main__':
 
     if times_after_learning_with_show_last_move:
         print('\nTesting policy and showing only last move')
-        results += run_ai(board_type,board_size,times_after_learning_with_show_last_move,a,c,empty_nodes_pos,False,False,True,debug,delay)
+        results += run_ai(board_type,board_size,times_after_learning_with_show_last_move,a,c,empty_nodes_pos,False,False,True,debug,delay_last_action)
 
     if times_after_learning_with_show_every_move:
         print('\nTesting policy and showing every move')
-        results += run_ai(board_type,board_size,times_after_learning_with_show_every_move,a,c,empty_nodes_pos,False,True,True,debug,delay)
+        results += run_ai(board_type,board_size,times_after_learning_with_show_every_move,a,c,empty_nodes_pos,False,True,True,debug,delay_every_action)
 
     if show_statistics:
         print('\nShowing statistics')
-        print_averages(results,average_amount)
+        print_averages(results,average_amount,show_pegs_remaining, show_wins)
 
