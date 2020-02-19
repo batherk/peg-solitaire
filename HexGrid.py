@@ -2,6 +2,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 
 class Node:
+    """ Used to store value of individual place on the board, and the relations to other places"""
 
     def __init__(self, value=0):
         self.value = value
@@ -42,6 +43,7 @@ class Node:
         return str(self.value)
 
 class HexGrid:
+    """ Grid of nodes. Used to store the game state and perform actions"""
 
     def __init__(self, *args, **kwargs):
         self.nodes = {}
@@ -96,6 +98,10 @@ class HexGrid:
         self.graph.add_edge(pos1,pos2)
 
     def show_graph(self, positions=None, debug=False, pause=1, action_nodes_pos=[]):
+        """
+        Show a graph representation of the board/hex grid.
+        action_nodes_pos is a list of node positions that should be highlighted (in green)
+        """
         if not positions:
             positions = {}
             labels = {}
@@ -137,6 +143,11 @@ class HexGrid:
             index += 1
 
 class Diamond(HexGrid):
+    """ 
+    Diamond grid
+    Creates a hex grid of nodes that have correct relations to each other (diamond grid). 
+    Overrides methods in hex grid to customize the representation.
+    """
     
     def __init__(self,size):
         super(Diamond, self).__init__()
@@ -164,6 +175,11 @@ class Diamond(HexGrid):
             super(Diamond, self).show_graph(positions=positions, pause=pause, action_nodes_pos=action_nodes_pos)   
 
 class Triangle(HexGrid):
+    """ 
+    Triangle grid
+    Creates a hex grid of nodes that have correct relations to each other (triangle grid). 
+    Overrides methods in hex grid to customize the representation.
+    """
     
     def __init__(self,size):
         super(Triangle, self).__init__()
