@@ -95,7 +95,7 @@ class HexGrid:
         self.nodes[pos1].add_neighbor(relative_pos,self.nodes[pos2])
         self.graph.add_edge(pos1,pos2)
 
-    def show_graph(self, positions=None, debug=False, pause=1):
+    def show_graph(self, positions=None, debug=False, pause=1, action_nodes_pos=[]):
         if not positions:
             positions = {}
             labels = {}
@@ -105,8 +105,13 @@ class HexGrid:
                 labels[pos]=str(pos)
                 label_positions[pos] = (pos[1],self.size - pos[0]-0.3)
         
+        filled_nodes_positions = self.get_filled_nodes_positions()
+        for node_pos in action_nodes_pos:
+            filled_nodes_positions.remove(node_pos)
+
         nx.draw_networkx_nodes(self.graph, positions, nodelist=self.get_empty_nodes_positions(), node_color='black')
-        nx.draw_networkx_nodes(self.graph, positions, nodelist=self.get_filled_nodes_positions(), node_color='blue')
+        nx.draw_networkx_nodes(self.graph, positions, nodelist=filled_nodes_positions, node_color='blue')
+        nx.draw_networkx_nodes(self.graph, positions, nodelist=action_nodes_pos, node_color='green')
         nx.draw_networkx_edges(self.graph, positions, alpha=0.5, width=1)
 
         if debug:
@@ -147,16 +152,16 @@ class Diamond(HexGrid):
                 if neighbor_pos in self.nodes:
                     self.add_edge(pos,neighbor_pos)
 
-    def show_graph(self, debug=False, pause=1):
+    def show_graph(self, debug=False, pause=1, action_nodes_pos=[]):
         if debug:
-            super(Diamond, self).show_graph(debug=True)
+            super(Diamond, self).show_graph(debug=True,action_nodes_pos=action_nodes_pos)
         else: 
             positions = {}
             for pos in self.get_legal_positions():
                 x = pos[1]-pos[0]
                 y = 2*self.size - pos[0] - pos[1]
                 positions[pos]=(x,y)
-            super(Diamond, self).show_graph(positions=positions, pause=pause)   
+            super(Diamond, self).show_graph(positions=positions, pause=pause, action_nodes_pos=action_nodes_pos)   
 
 class Triangle(HexGrid):
     
@@ -174,11 +179,11 @@ class Triangle(HexGrid):
                 if neighbor_pos in self.nodes:
                     self.add_edge(pos,neighbor_pos)
 
-    def show_graph(self, debug=False, pause=1):
+    def show_graph(self, debug=False, pause=1, action_nodes_pos=[]):
             if debug:
-                super(Triangle, self).show_graph(debug=True)
+                super(Triangle, self).show_graph(debug=True,action_nodes_pos=action_nodes_pos)
             else: 
                 positions = {}
                 for pos in self.get_legal_positions():
                     positions[pos]=(2*pos[1]-pos[0],self.size - pos[0])
-                super(Triangle, self).show_graph(positions, pause=pause)
+                super(Triangle, self).show_graph(positions, pause=pause,action_nodes_pos=action_nodes_pos)

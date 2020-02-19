@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 
 # Scenario: 
-SCENARIO = 1
+SCENARIO = 2
 
 SCENARIO_DESCRIPTIONS = {}
 SCENARIO_DESCRIPTIONS[0] = "Custom settings"
@@ -41,7 +41,7 @@ points_amount = 100
 average_amount = (times_with_learning + times_after_learning_testing + times_after_learning_with_show_every_move + times_after_learning_with_show_last_move)//points_amount
 
 # Plot settings
-delay = 1
+delay = 0.2
 
 # Debug settings
 debug = False
@@ -103,13 +103,20 @@ def run_one_game(game,actor,critic,evolve=True,show_board_every_action=False, sh
     state_action_sequence = []
 
     while not game.is_done():
+
         if show_board_every_action:
             game.show_board(debug=debug, pause=show_delay)
         old_state = game.get_state()
 
         action = actor.get_action(game)
+        if show_board_every_action:
+            game.show_board_next_action(debug=debug, pause=show_delay, action=action)
         game.perform_action(action)
+        if show_board_every_action:
+            game.show_board_after_action(debug=debug, pause=show_delay, action=action)
         state_action_sequence.append((old_state,action))
+
+
 
         new_state = game.get_state()
         reward = game.get_reward()

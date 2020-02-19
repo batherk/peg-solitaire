@@ -35,6 +35,12 @@ class PegSolitaire:
     
     def show_board(self, debug=False, pause=1):
         self.board.show_graph(debug=debug, pause=pause)
+
+    def show_board_after_action(self, action, debug=False, pause=1):
+        self.board.show_graph(debug=debug, pause=pause, action_nodes_pos=list(action[-1:]))
+
+    def show_board_next_action(self, action, debug=False, pause=1):
+        self.board.show_graph(debug=debug, pause=pause,action_nodes_pos=list(action[:-1]))
     
     def get_third_node_pos(self,node_1_pos,node_2_pos):
         if not self.board.is_neighbors(node_1_pos, node_2_pos):
