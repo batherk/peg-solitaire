@@ -9,88 +9,88 @@ SCENARIO = 0
 
 SCENARIO_DESCRIPTIONS = {}
 SCENARIO_DESCRIPTIONS[0] = "Custom settings"
-SCENARIO_DESCRIPTIONS[1] = "Triangle, 5, Table, (0,0) is empty, 500 epochs, alpha_actor: 0.001, alpha_critic: 0.001."
-SCENARIO_DESCRIPTIONS[2] = "Diamond, 4, Table, (1,2) is empty, 1000 epochs, alpha_actor: 0.001, alpha_critic: 0.001." 
-SCENARIO_DESCRIPTIONS[3] = "Triangle, 5, Neural Net, (0,0) is empty, 500 epochs, alpha_actor: 0.001, alpha_critic: 0.0001."
-SCENARIO_DESCRIPTIONS[4] = "Diamond, 4, Neural Net, (1,2) is empty, 1000 epochs, alpha_actor: 0.001, alpha_critic: 0.0001."
+SCENARIO_DESCRIPTIONS[1] = "Triangle, 5, Table, (0,0) is empty, 500 epochs, ALPHA_ACTOR: 0.001, ALPHA_CRITIC: 0.001."
+SCENARIO_DESCRIPTIONS[2] = "Diamond, 4, Table, (1,2) is empty, 1000 epochs, ALPHA_ACTOR: 0.001, ALPHA_CRITIC: 0.001." 
+SCENARIO_DESCRIPTIONS[3] = "Triangle, 5, Neural Net, (0,0) is empty, 500 epochs, ALPHA_ACTOR: 0.001, ALPHA_CRITIC: 0.0001."
+SCENARIO_DESCRIPTIONS[4] = "Diamond, 4, Neural Net, (1,2) is empty, 1000 epochs, ALPHA_ACTOR: 0.001, ALPHA_CRITIC: 0.0001."
 
 # Parameter settings
-lam = 0.5
-gamma = 0.9
-epsilon = 0.15
+LAMBDA = 0.5                    # Trace decay factor
+GAMMA = 0.9                     # Discount factor
+EPSILON = 0.15                  # Greediness factor
 
-alpha_critic = 0.001
-alpha_actor = 0.001
+ALPHA_CRITIC = 0.001            # Learning rate critic
+ALPHA_ACTOR = 0.001             # Learning rate actor
 
 # Game settings
-board_type = "Triangle"
-board_size = 5
-empty_nodes_pos = [] # If this is empty, the game initializes with a random peg every time
+BOARD_TYPE = "Triangle"         # Board can be "Triangle" or "Diamond"
+BOARD_SIZE = 5              
+EMPTY_NODES_POS = []            # If this is empty the game initializes with a random peg every time, else you set the empty nodes
 
 # Epoch settings
-times_with_learning = 3000
+EPOCHS = 3000
 
-# Checking policy
-times_after_learning_testing = 500
-times_after_learning_with_show_every_move = 1
-times_after_learning_with_show_last_move = 50
+# Checking policy after epsilon is set to 0 -> Greedy Policy
+ITERATIONS_TEST = 500               # Number of times the policy wil be tested
+ITERATIONS_SHOW_ALL_ACTIONS = 1     # Number of times the policy's handling of a game will be shown
+ITERATIONS_SHOW_END_STATE = 0       # Number of times the end state of the game will be shown
 
 # Statistics settings
-show_statistics = True
-show_pegs_remaining = True
-show_wins = False
-points_amount = 100
-average_amount = (times_with_learning + times_after_learning_testing + times_after_learning_with_show_every_move + times_after_learning_with_show_last_move)//points_amount
+SHOW_STATISTICS = True          # If you want to see a graph with the policy's performance
+SHOW_REMAINING_PEGS = True      # If you want to see the graph with remaining pegs
+SHOW_WINS = False               # If you want to see the amount of times the policy wins the game
+GRAPH_POINTS = 100          
+AVERAGE_AMOUNT = (EPOCHS + ITERATIONS_TEST + ITERATIONS_SHOW_ALL_ACTIONS + ITERATIONS_SHOW_END_STATE)//GRAPH_POINTS
 
 # Plot settings
-delay_last_action = 0.1
-delay_every_action = 0.5
+DELAY_END_STATE = 0.1           # Delay between each showing of end states
+DELAY_EVERY_ACTION = 0.2        # Delay between each showning of action and consequence
 
 # Debug settings
-debug = False
+DEBUG = False
 
 # Critic settings
-USE_TABLE = True
+USE_TABLE = True                # True -> Table, False -> Neural net
 
 # Neural net critic
-UPDATE_WHOLE_SEQUENCE = True # If true the net is updated by every state in the sequence, based on eligibility traces. Only one time per state per episode. 
-LAYERS = [15,10,10,10,1]  # This works: LAYERS = [X,10,10,10,X], ADAPT_END_LAYERS = True
-ADAPT_END_LAYERS = True # If true the first layer of nodes gets the dimension of the state size of the game and last layer gets one node, else custom
+UPDATE_WHOLE_SEQUENCE = True    # If true the net is updated by every state in the sequence, based on eligibility traces. Only one time per state per episode. 
+LAYERS = [15,10,10,10,1]        # This works: LAYERS = [X,10,10,10,X], ADAPT_END_LAYERS = True
+ADAPT_END_LAYERS = True         # If true the first layer of nodes gets the dimension of the state size of the game and last layer gets one node, else custom
 
 
 # Setting constants for the different scenarios
 if SCENARIO == 1:
     USE_TABLE = True
-    board_type = "Triangle"
-    board_size = 5
-    times_with_learning = 500
-    alpha_critic = 0.001
-    alpha_actor = 0.001
-    empty_nodes_pos = [(0,0)]
+    BOARD_TYPE = "Triangle"
+    BOARD_SIZE = 5
+    EPOCHS = 500
+    ALPHA_CRITIC = 0.001
+    ALPHA_ACTOR = 0.001
+    EMPTY_NODES_POS = [(0,0)]
 elif SCENARIO == 2:
     USE_TABLE = True
-    board_type = "Diamond"
-    board_size = 4
-    times_with_learning = 1000
-    alpha_critic = 0.001
-    alpha_actor = 0.001
-    empty_nodes_pos = [(1,2)]
+    BOARD_TYPE = "Diamond"
+    BOARD_SIZE = 4
+    EPOCHS = 1000
+    ALPHA_CRITIC = 0.001
+    ALPHA_ACTOR = 0.001
+    EMPTY_NODES_POS = [(1,2)]
 elif SCENARIO == 3:
     USE_TABLE = False
-    board_type = "Triangle"
-    board_size = 5
-    times_with_learning = 500
-    alpha_critic = 0.0001
-    alpha_actor = 0.001
-    empty_nodes_pos = [(0,0)]
+    BOARD_TYPE = "Triangle"
+    BOARD_SIZE = 5
+    EPOCHS = 500
+    ALPHA_CRITIC = 0.0001
+    ALPHA_ACTOR = 0.001
+    EMPTY_NODES_POS = [(0,0)]
 elif SCENARIO == 4:
     USE_TABLE = False
-    board_type = "Diamond"
-    board_size = 4
-    times_with_learning = 1000
-    alpha_critic = 0.00005
-    alpha_actor = 0.001
-    empty_nodes_pos = [(1,2)]
+    BOARD_TYPE = "Diamond"
+    BOARD_SIZE = 4
+    EPOCHS = 1000
+    ALPHA_CRITIC = 0.00005
+    ALPHA_ACTOR = 0.001
+    EMPTY_NODES_POS = [(1,2)]
 
 
 
@@ -238,10 +238,10 @@ def create_critic(lam,alpha,gamma,table,state_size=None,layers=None, adapt_end_l
 
 if __name__ == '__main__':
 
-    state_size = state_size(board_type, board_size)
+    state_size = state_size(BOARD_TYPE, BOARD_SIZE)
 
-    a = Actor(lam,alpha_actor,gamma,epsilon)
-    c = create_critic(lam,alpha_critic,gamma,USE_TABLE,state_size,LAYERS, ADAPT_END_LAYERS, UPDATE_WHOLE_SEQUENCE)
+    a = Actor(LAMBDA,ALPHA_ACTOR,GAMMA,EPSILON)
+    c = create_critic(LAMBDA,ALPHA_CRITIC,GAMMA,USE_TABLE,state_size,LAYERS, ADAPT_END_LAYERS, UPDATE_WHOLE_SEQUENCE)
 
     if SCENARIO in SCENARIO_DESCRIPTIONS:
         print(f'\nScenario: {SCENARIO}\nDescription: {SCENARIO_DESCRIPTIONS[SCENARIO]}\n')
@@ -249,22 +249,22 @@ if __name__ == '__main__':
         print(f'\nUndefined scenario\n\nRunning scenario: {0}\nDescription: {SCENARIO_DESCRIPTIONS[0]}\n')
 
     print('Training')
-    results = run_ai(board_type,board_size,times_with_learning,a,c,empty_nodes_pos)
+    results = run_ai(BOARD_TYPE,BOARD_SIZE,EPOCHS,a,c,EMPTY_NODES_POS)
     a.epsilon = 0
 
-    if times_after_learning_testing:
+    if ITERATIONS_TEST:
         print('\nTesting policy with greedy behaviour')
-        results += run_ai(board_type,board_size,times_after_learning_testing,a,c,empty_nodes_pos,False,False,False)
+        results += run_ai(BOARD_TYPE,BOARD_SIZE,ITERATIONS_TEST,a,c,EMPTY_NODES_POS,False,False,False)
 
-    if times_after_learning_with_show_last_move:
+    if ITERATIONS_SHOW_END_STATE:
         print('\nTesting policy and showing only last move')
-        results += run_ai(board_type,board_size,times_after_learning_with_show_last_move,a,c,empty_nodes_pos,False,False,True,debug,delay_last_action)
+        results += run_ai(BOARD_TYPE,BOARD_SIZE,ITERATIONS_SHOW_END_STATE,a,c,EMPTY_NODES_POS,False,False,True,DEBUG,DELAY_END_STATE)
 
-    if times_after_learning_with_show_every_move:
+    if ITERATIONS_SHOW_ALL_ACTIONS:
         print('\nTesting policy and showing every move')
-        results += run_ai(board_type,board_size,times_after_learning_with_show_every_move,a,c,empty_nodes_pos,False,True,True,debug,delay_every_action)
+        results += run_ai(BOARD_TYPE,BOARD_SIZE,ITERATIONS_SHOW_ALL_ACTIONS,a,c,EMPTY_NODES_POS,False,True,True,DEBUG,DELAY_EVERY_ACTION)
 
-    if show_statistics:
+    if SHOW_STATISTICS:
         print('\nShowing statistics')
-        print_averages(results,average_amount,show_pegs_remaining, show_wins)
+        print_averages(results,AVERAGE_AMOUNT,SHOW_REMAINING_PEGS, SHOW_WINS)
 
